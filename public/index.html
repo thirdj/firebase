@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to Firebase Hosting</title>
+
+<!-- Material Design Theming -->
+<link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+<link rel="stylesheet" href="main.css" />
+
+</head>
+<body>
+<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <!-- Header section containing title -->
+  <header class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
+    <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
+      <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop">
+        <a href="/"><h3>Firebase Examples</h3></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- mdl-layout__content -->
+  <main class="mdl-layout__content mdl-color--grey-100">
+    <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
+
+      <!-- Container for the demo Authentication -->
+      <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
+        <div class="mdl-card__title mdl-color--light-blue-600 mdl-color-text--white">
+          <h2 class="mdl-card__title-text">Authentication</h2>
+        </div>
+        <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+          <!-- <p>Sign in with your Google account below.</p> -->
+
+          <!-- Button that handles sign-in/sign-out -->
+          <img src="./firebase-logo.png" id="user-image" alt="null" />
+          <button disabled class="mdl-button mdl-js-button mdl-button--raised" id="quickstart-sign-in">Sign in with Google</button>
+
+          <!-- Container where we'll display the user details -->
+          <div class="quickstart-user-details-container">
+            Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+            <div>Firebase auth <code>currentUser</code> object value:</div>
+            <pre><code id="quickstart-account-details">null</code></pre>
+            <!-- <div>Google OAuth Access Token:</div>
+            <pre><code id="quickstart-oauthtoken">null</code></pre> -->
+          </div>
+        </div>
+      </div>
+      <!-- Authentication -->
+
+      <!-- Container for the demo Storage -->
+      <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
+        <div class="mdl-card__title mdl-color--light-blue-600 mdl-color-text--white">
+          <h2 class="mdl-card__title-text">Storage</h2>
+        </div>
+        <div class="mdl-card__supporting-text mdl-color-text--grey-600" id="messagesDiv">
+          <!-- <p>Select a file below. When it is uploaded, a link will be displayed to the uploaded file.</p> -->
+          <h6>Choose File</h6>
+          <input type="file" id="file" name="file"/>
+          <h6>File URL:</h6>
+          <span id="linkbox"></span>
+        </div>
+      </div>
+      <!-- Storage -->
+
+      <!-- Database -->
+      <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet mdl-cell--6-col-desktop">
+        <div class="mdl-card__title mdl-color--light-blue-600 mdl-color-text--white">
+          <h2 class="mdl-card__title-text">Database</h2>
+        </div>
+        <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+          <form id="message-form" action="#">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="new-post-title">
+              <label class="mdl-textfield__label" for="new-post-title">Post title...</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <textarea class="mdl-textfield__input" rows="3" id="new-post-message"></textarea>
+              <label class="mdl-textfield__label" for="new-post-message">Post message...</label>
+            </div>
+            <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+              Add post
+            </button>
+          </form>
+        </div>
+        <div class="demo-list-action mdl-list" id="demo-list"></div> <!-- database append -->
+      </div>
+      <!-- Database -->
+
+    </div>
+  </main>
+  <!-- mdl-layout__content -->
+</div>
+
+<script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+<script src="https://code.jquery.com/jquery-1.8.3.js"></script>
+<script src="./config.js"></script>
+<script src="./auth.js" charset="utf-8"></script>
+<script src="./storage.js" charset="utf-8"></script>
+
+<script>
+  var database = firebase.database()
+    , ref = database.ref()
+    , recentPostsRef = database.ref('posts')
+    , textarea = document.getElementById('new-post-message')
+    , messageForm = document.getElementById('message-form')
+    , input = document.getElementById('new-post-title');
+
+  function startDatabaseQueries() {
+    var html;
+
+    var fetchPosts = function(postsRef) {
+      var tempImg = 'firebase-logo.png';
+      postsRef.on('child_added', function(data) {
+        html = '<div class="mdl-list__item">' +
+          '<span class="mdl-list__item-primary-content">' +
+            '<i class="material-icons mdl-list__item-avatar"><img class="user-images" src="'+ (window.firebase.userImg || tempImg) +'" alt="user image" /></i>' +
+            '<span class="mdl-list__item-secondary-content" style="width: 220px;">'+ data.key +'</span>' +
+            '<span class="mdl-list__item-secondary-content">'+ data.val().title +'</span>' +
+            '<span class="mdl-list__item-secondary-content">'+ data.val().body +'</span>' +
+          '</span>' +
+          '<a class="mdl-list__item-secondary-action close" href="#" data-key="'+ data.key +'"><i class="material-icons">close</i></a>' +
+        '</div>';
+
+        reply(html);
+      });
+    };
+    fetchPosts(recentPostsRef.limitToLast(100));
+
+  }
+  function reply(data) {
+    $('#demo-list').append(data);
+  }
+  function writeNewPost(uid, username, title, body) {
+    var postData = {
+      author: username,
+      uid: uid,
+      body: body,
+      title: title,
+    };
+
+    var newPostKey = ref.child('posts').push().key
+      , updates = {};
+
+    updates['/posts/' + newPostKey] = postData;
+    updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+
+    return ref.update(updates);
+  }
+
+  messageForm.onsubmit = function(e) {
+    e.preventDefault();
+    var user = firebase.auth().currentUser;
+
+    writeNewPost(
+      user.uid,
+      user.displayName,
+      input.value,
+      textarea.value
+    );
+    input.value = '';
+    textarea.value = '';
+  }
+  function init() {
+    startDatabaseQueries();
+  }
+  $(function(){
+    init();
+
+    $('#demo-list').on('click', 'a', function(e) {
+      var user = window.firebase.user
+        , $this = $(this)
+        , $key = $this.data('key')
+        , $parent = $this.parent('div')
+        , recentUserPostsRef = database.ref('user-posts/'+ user.uid);
+
+      $parent.remove();
+      recentPostsRef.child($key).remove();
+      recentUserPostsRef.child($key).remove();
+
+    });
+  });
+
+</script>
+<!-- <script src="./database.js" charset="utf-8"></script> -->
+</body>
+</html>
