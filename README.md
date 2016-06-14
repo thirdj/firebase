@@ -13,7 +13,15 @@ better apps and grow successful businesses
 
 [![](https://lh3.googleusercontent.com/Jp5DG28Mj668TyylbnjcCjNvzh-9-IjxT1IixnKrOziswXJzQZZ8GUpRobmQPba0vvINC8c6GymEni3UYcAX3uLVdHFz0Z_x=s888)](https://monetizejs.com/authorize?client_id=ESTHdCYOi18iLhhO&summary=true)
 
+> **Todolist:**
+
+> - Firebase Cloud Messaging
+> - Auth + Storage + DB + Hosting + Messaging = Chat
+
 License
 ----
 
 MIT
+
+
+**Free Software, Hell Yeah!**
